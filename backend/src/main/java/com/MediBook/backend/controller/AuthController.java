@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.MediBook.backend.dto.AuthResponse;
+import com.MediBook.backend.dto.LoginRequest;
 import com.MediBook.backend.dto.RegisterRequest;
 import com.MediBook.backend.model.User;
 import com.MediBook.backend.service.UserService;
@@ -21,7 +23,11 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
-        User user = userService.register(request);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(userService.login(request));
     }
 }
