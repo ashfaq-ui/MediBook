@@ -13,7 +13,15 @@ function Login() {
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('role', response.data.role);
             localStorage.setItem('name', response.data.name);
-            alert(`Welcome ${response.data.name}!`);
+            const role = response.data.role;
+            if (role === 'PATIENT') {
+                window.location.href = '/patient/dashboard';
+            } else if (role === 'DOCTOR') {
+                window.location.href = '/doctor/dashboard';
+            } else if (role === 'ADMIN') {
+                window.location.href = '/admin/dashboard';
+            }
+
         } catch (err) {
             setError('Invalid email or password');
         }
