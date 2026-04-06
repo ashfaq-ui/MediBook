@@ -4,6 +4,8 @@ import Register from './pages/Register';
 import PatientDashboard from './pages/patient/PatientDashboard';
 import DoctorDashboard from './pages/doctor/DoctorDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 
 function App() {
     return (
@@ -20,6 +22,11 @@ function App() {
                 <Route path="/doctor/dashboard" element={
                     <ProtectedRoute allowedRole="DOCTOR">
                         <DoctorDashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/admin/dashboard" element={
+                    <ProtectedRoute allowedRole="ADMIN">
+                        <AdminDashboard />
                     </ProtectedRoute>
                 } />
             </Routes>

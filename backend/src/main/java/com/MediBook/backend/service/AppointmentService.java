@@ -99,4 +99,10 @@ public class AppointmentService {
         response.setCreatedAt(appointment.getCreatedAt());
         return response;
     }
+    public List<AppointmentResponse> getAll() {
+        return appointmentRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 }

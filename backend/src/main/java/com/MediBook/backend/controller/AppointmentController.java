@@ -42,4 +42,9 @@ public class AppointmentController {
     public ResponseEntity<AppointmentResponse> cancel(@PathVariable Long id) {
         return ResponseEntity.ok(appointmentService.cancel(id));
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<AppointmentResponse>> getAll() {
+        return ResponseEntity.ok(appointmentService.getAll());
+    }
 }
