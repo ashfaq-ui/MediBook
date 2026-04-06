@@ -14,6 +14,7 @@ function Login() {
             localStorage.setItem('role', response.data.role);
             localStorage.setItem('name', response.data.name);
             localStorage.setItem('userId', response.data.userId);
+            localStorage.setItem('email', response.data.email);
             const role = response.data.role;
             if (role === 'PATIENT') {
                 window.location.href = '/patient/dashboard';

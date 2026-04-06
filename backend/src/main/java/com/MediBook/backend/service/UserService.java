@@ -1,5 +1,7 @@
 package com.MediBook.backend.service;
 
+import java.util.List;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,11 @@ public class UserService {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token, user.getRole().name(), user.getName(), user.getId());
+        return new AuthResponse(token, user.getRole().name(), user.getName(), user.getId(), user.getEmail());
     }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
 }
