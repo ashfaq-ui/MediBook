@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 function Register() {
+    const navigate = useNavigate();
     const [form, setForm] = useState({
         name: '', email: '', password: '', role: 'PATIENT'
     });
@@ -18,7 +20,7 @@ function Register() {
         setError('');
         try {
             await api.post('/auth/register', form);
-            window.location.href = '/login';
+            navigate('/login');
         } catch (err) {
             setError('Registration failed. Email may already be in use.');
         } finally {
@@ -290,7 +292,7 @@ function Register() {
 
                     <p className="bottom-text">
                         Already have an account?{' '}
-                        <a href="/login">Sign in</a>
+                        <Link to="/login">Sign in</Link>
                     </p>
                 </div>
             </div>

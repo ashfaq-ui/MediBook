@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import BookAppointment from './BookAppointment';
 
 function PatientDashboard() {
+    const navigate = useNavigate();
     const name = localStorage.getItem('name');
     const patientId = localStorage.getItem('userId');
     const [appointments, setAppointments] = useState([]);
@@ -34,7 +36,7 @@ function PatientDashboard() {
 
     const handleLogout = () => {
         localStorage.clear();
-        window.location.href = '/login';
+        navigate('/login');
     };
 
     const upcoming = appointments.filter(a => a.status === 'PENDING' || a.status === 'CONFIRMED');

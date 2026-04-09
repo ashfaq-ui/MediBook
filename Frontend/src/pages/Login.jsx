@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 function Login() {
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -20,9 +22,9 @@ function Login() {
             localStorage.setItem('email', response.data.email);
 
             const role = response.data.role;
-            if (role === 'PATIENT') window.location.href = '/patient/dashboard';
-            else if (role === 'DOCTOR') window.location.href = '/doctor/dashboard';
-            else if (role === 'ADMIN') window.location.href = '/admin/dashboard';
+            if (role === 'PATIENT') navigate('/patient/dashboard');
+            else if (role === 'DOCTOR') navigate('/doctor/dashboard');
+            else if (role === 'ADMIN') navigate('/admin/dashboard');
         } catch (err) {
             setError('Invalid email or password. Please try again.');
         } finally {
@@ -227,7 +229,7 @@ function Login() {
 
                     <p className="bottom-text">
                         Don't have an account?{' '}
-                        <a href="/register">Create one</a>
+                        <Link to="/register">Create one</Link>
                     </p>
                 </div>
             </div>

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import ManageSlots from './ManageSlots';
 
 function DoctorDashboard() {
+    const navigate = useNavigate();
     const name = localStorage.getItem('name');
     const [doctorId, setDoctorId] = useState(null);
     const [appointments, setAppointments] = useState([]);
@@ -46,7 +48,7 @@ function DoctorDashboard() {
 
     const handleLogout = () => {
         localStorage.clear();
-        window.location.href = '/login';
+        navigate('/login');
     };
 
     const today = new Date().toISOString().split('T')[0];
