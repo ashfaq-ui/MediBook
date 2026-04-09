@@ -22,7 +22,13 @@ function Register() {
             await api.post('/auth/register', form);
             navigate('/login');
         } catch (err) {
-            setError('Registration failed. Email may already be in use.');
+            if (err?.response?.data?.message) {
+                setError(err.response.data.message);
+            } else if (err?.code === 'ERR_NETWORK') {
+                setError('Unable to reach server. Please check backend status and CORS settings.');
+            } else {
+                setError('Registration failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
