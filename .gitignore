@@ -1,0 +1,17 @@
+# Mac
+.DS_Store
+.DS_Store?
+._*
+
+# Env files
+*.env
+application-local.properties
+
+# IDE
+.idea/
+*.iml
+
+# Build
+target/
+node_modules/
+dist/
