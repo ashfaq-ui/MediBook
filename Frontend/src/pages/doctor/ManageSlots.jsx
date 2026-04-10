@@ -9,8 +9,8 @@ function ManageSlots({ doctorId }) {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (date) fetchSlots();
-    }, [date]);
+        if (date && doctorId) fetchSlots();
+    }, [date, doctorId]);
 
     const fetchSlots = async () => {
         try {
@@ -22,6 +22,7 @@ function ManageSlots({ doctorId }) {
     };
 
     const handleAddSlot = async () => {
+        if (!doctorId) return alert('Your doctor profile is not set up yet. Ask an Admin to add you.');
         if (!date || !startTime || !endTime) return alert('Please fill all fields');
         if (startTime >= endTime) return alert('End time must be after start time');
         setLoading(true);
@@ -166,6 +167,11 @@ function ManageSlots({ doctorId }) {
 
             <div className="ms-wrapper">
                 <div className="ms-title">🗓 Manage Availability</div>
+                {!doctorId && (
+                    <div style={{ color: '#FCA5A5', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '8px', padding: '12px 16px', marginBottom: '20px', fontSize: '14px' }}>
+                        ⚠️ Your doctor profile has not been set up by an Admin yet. Please ask an Admin to add you to the doctors list.
+                    </div>
+                )}
 
                 {/* Add Slot Form */}
                 <div className="ms-form">
