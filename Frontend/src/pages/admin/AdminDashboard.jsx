@@ -11,6 +11,7 @@ function AdminDashboard() {
     const [departments, setDepartments] = useState([]);
     const [doctors, setDoctors] = useState([]);
     const [newDept, setNewDept] = useState({ name: '', description: '' });
+    const [newDoctor, setNewDoctor] = useState({ userId: '', departmentId: '', specialization: '', phone: '' });
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -31,6 +32,27 @@ function AdminDashboard() {
             setDoctors(doctorsRes.data);
         } catch (err) {
             console.error('Failed to fetch data', err);
+        }
+    };
+
+    const handleAddDoctor = async () => {
+        if (!newDoctor.userId || !newDoctor.departmentId || !newDoctor.specialization) {
+            return alert('User, department and specialization are required');
+        }
+        setLoading(true);
+        try {
+            await api.post('/doctors', {
+                userId: parseInt(newDoctor.userId),
+                departmentId: parseInt(newDoctor.departmentId),
+                specialization: newDoctor.specialization,
+                phone: newDoctor.phone
+            });
+            setNewDoctor({ userId: '', departmentId: '', specialization: '', phone: '' });
+            fetchAll();
+        } catch (err) {
+            alert('Failed to add doctor');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -322,6 +344,35 @@ function AdminDashboard() {
                     color: #475569;
                 }
 
+                .ad-select {
+                    padding: 10px 14px;
+                    border-radius: 8px;
+                    border: 1.5px solid #334155;
+                    font-size: 14px;
+                    outline: none;
+                    transition: border-color 0.2s;
+                    background: #0F172A;
+                    color: #F1F5F9;
+                    width: 100%;
+                }
+
+                .ad-select:focus { border-color: #0D9488; }
+
+                .ad-add-doctor-form {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr 1fr 1fr auto;
+                    gap: 12px;
+                    align-items: flex-end;
+                }
+
+                @media (max-width: 1024px) {
+                    .ad-add-doctor-form { grid-template-columns: 1fr 1fr; }
+                }
+
+                @media (max-width: 768px) {
+                    .ad-add-doctor-form { grid-template-columns: 1fr; }
+                }
+
                 @media (max-width: 1024px) {
                     .ad-stats { grid-template-columns: repeat(2, 1fr); }
                 }
@@ -541,35 +592,97 @@ function AdminDashboard() {
 
                     {/* Doctors Tab */}
                     {tab === 'doctors' && (
-                        <div className="ad-table-wrapper">
-                            <table className="ad-table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Department</th>
-                                        <th>Specialization</th>
-                                        <th>Phone</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {doctors.length === 0 ? (
+                        <div>
+                            <div className="ad-add-dept">
+                                <h4>➕ Assign Doctor Profile</h4>
+                                <div className="ad-add-doctor-form">
+                                    <div>
+                                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Doctor User</div>
+                                        <select
+                                            className="ad-select"
+                                            value={newDoctor.userId}
+                                            onChange={e => setNewDoctor({ ...newDoctor, userId: e.target.value })}>
+                                            <option value="">Select doctor user...</option>
+                                            {doctorUsers
+                                                .filter(u => !doctors.find(d => d.email === u.email))
+                                                .map(u => (
+                                                    <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+                                                ))
+                                            }
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748B', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Department</div>
+                                        <select
+                                            className="ad-select"
+                                            value={newDoctor.departmentId}
+                                            onChange={e => setNewDoctor({ ...newDoctor, departmentId: e.target.value })}>
+                                            <option value="">Select department...</option>
+                                            {departments.map(d => (
+                                                <option key={d.id} value={d.id}>{d.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <input
+                                        className="ad-input"
+                                        placeholder="Specialization"
+                                        value={newDoctor.specialization}
+                                        onChange={e => setNewDoctor({ ...newDoctor, specialization: e.target.value })}
+                                    />
+                                    <input
+                                        className="ad-input"
+                                        placeholder="Phone (optional)"
+                                        value={newDoctor.phone}
+                                        onChange={e => setNewDoctor({ ...newDoctor, phone: e.target.value })}
+                                    />
+                                    <button
+                                        className="ad-add-btn"
+                                        onClick={handleAddDoctor}
+                                        disabled={loading}>
+                                        {loading ? 'Adding...' : '+ Add'}
+                                    </button>
+                                </div>
+                                {doctorUsers.filter(u => !doctors.find(d => d.email === u.email)).length === 0 && doctorUsers.length > 0 && (
+                                    <div style={{ marginTop: '12px', fontSize: '13px', color: '#64748B' }}>
+                                        All registered doctor users have been assigned a profile.
+                                    </div>
+                                )}
+                                {doctorUsers.length === 0 && (
+                                    <div style={{ marginTop: '12px', fontSize: '13px', color: '#64748B' }}>
+                                        No users with DOCTOR role registered yet.
+                                    </div>
+                                )}
+                            </div>
+                            <div className="ad-table-wrapper">
+                                <table className="ad-table">
+                                    <thead>
                                         <tr>
-                                            <td colSpan="5" style={{ textAlign: 'center', color: '#94A3B8', padding: '32px' }}>
-                                                No doctors registered yet
-                                            </td>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Department</th>
+                                            <th>Specialization</th>
+                                            <th>Phone</th>
                                         </tr>
-                                    ) : doctors.map(d => (
-                                        <tr key={d.id}>
-                                            <td style={{ fontWeight: 600 }}>Dr. {d.name}</td>
-                                            <td style={{ color: '#64748B' }}>{d.email}</td>
-                                            <td>{d.departmentName}</td>
-                                            <td style={{ color: '#64748B' }}>{d.specialization}</td>
-                                            <td>{d.phone}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {doctors.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="5" style={{ textAlign: 'center', color: '#94A3B8', padding: '32px' }}>
+                                                    No doctor profiles created yet
+                                                </td>
+                                            </tr>
+                                        ) : doctors.map(d => (
+                                            <tr key={d.id}>
+                                                <td style={{ fontWeight: 600 }}>Dr. {d.name}</td>
+                                                <td style={{ color: '#64748B' }}>{d.email}</td>
+                                                <td>{d.departmentName}</td>
+                                                <td style={{ color: '#64748B' }}>{d.specialization}</td>
+                                                <td>{d.phone}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     )}
                 </div>
