@@ -3,6 +3,7 @@ package com.MediBook.backend.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,6 +12,7 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Async
     public void sendBookingConfirmation(String toEmail, String patientName,
             String doctorName, String department,
             String date, String startTime, String endTime) {
@@ -36,6 +38,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendCancellationEmail(String toEmail, String patientName,
             String doctorName, String date, String startTime) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -57,6 +60,7 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    @Async
     public void sendStatusUpdateEmail(String toEmail, String patientName,
             String doctorName, String date,
             String startTime, String status) {

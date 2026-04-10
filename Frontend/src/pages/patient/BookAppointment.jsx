@@ -293,8 +293,8 @@ function BookAppointment({ patientId, onBooked }) {
                                 {slots.map(s => (
                                     <button
                                         key={s.id}
-                                        className={`ba-slot ${selectedSlot === s.id ? 'selected' : ''}`}
-                                        onClick={() => setSelectedSlot(s.id)}>
+                                        className={`ba-slot ${selectedSlot === String(s.id) ? 'selected' : ''}`}
+                                        onClick={() => setSelectedSlot(String(s.id))}>
                                         🕐 {s.startTime} - {s.endTime}
                                     </button>
                                 ))}
