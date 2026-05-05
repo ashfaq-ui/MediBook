@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import com.MediBook.backend.enums.AppointmentStatus;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -41,6 +42,9 @@ public class Appointment {
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     private String notes;
+
+    @Column(columnDefinition = "TEXT")
+    private String aiSummary;
 
     private LocalDateTime createdAt = LocalDateTime.now();
 }
