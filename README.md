@@ -1,6 +1,6 @@
 # 🏥 MediBook — Clinic Appointment System
 
-A full-stack clinic management system built with React and Spring Boot, featuring role-based dashboards, appointment booking, email notifications, and AI-powered medical pre-screening (coming soon).
+A full-stack clinic management system built with React and Spring Boot, featuring role-based dashboards, appointment booking, email notifications, and AI-powered features via Google Gemini.
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green)
@@ -21,12 +21,14 @@ A full-stack clinic management system built with React and Spring Boot, featurin
 - View upcoming, completed and cancelled appointments
 - Cancel appointments
 - Receive email confirmations for bookings and cancellations
+- **AI Health Assistant** — chat with a Gemini-powered assistant for general health questions, symptom guidance, and appointment preparation
 
 ### 👨‍⚕️ Doctor
 - View all appointments with patient details
 - Confirm and complete appointments
 - Manage available time slots by date
 - Receive email notifications on status updates
+- **AI Appointment Summary** — generate a structured clinical summary for any appointment with one click
 
 ### 🛡️ Admin
 - View all users, doctors, departments and appointments
@@ -45,6 +47,7 @@ A full-stack clinic management system built with React and Spring Boot, featurin
 | Database | PostgreSQL 17 |
 | Auth | JWT (JSON Web Tokens) |
 | Email | Spring Mail + Gmail SMTP (async) |
+| AI | Google Gemini API (gemini-2.5-flash) |
 | Build | Maven |
 | CI/CD | GitHub Actions |
 | Deployment | Vercel (frontend) · Railway (backend + DB) |
@@ -57,8 +60,9 @@ A full-stack clinic management system built with React and Spring Boot, featurin
 React Frontend (Vite) — Vercel
         ↓  HTTPS + JWT
 Spring Boot REST API — Railway
-        ↓
-  PostgreSQL Database — Railway
+        ↓                    ↓
+  PostgreSQL DB         Google Gemini API
+     Railway
 ```
 
 ### Backend Layer Structure
@@ -71,6 +75,7 @@ model/        ← JPA entity classes
 dto/          ← Request/Response objects
 security/     ← JWT filter + CORS config
 enums/        ← Role, AppointmentStatus
+ai/           ← Gemini API client, chat service, summary service
 ```
 
 ---
@@ -82,6 +87,7 @@ enums/        ← Role, AppointmentStatus
 - Node.js 20+
 - PostgreSQL 17
 - Maven
+- Google Gemini API key (free at [aistudio.google.com](https://aistudio.google.com))
 
 ### Backend Setup
 
@@ -99,11 +105,15 @@ jwt.secret=your-secret-key
 jwt.expiration=86400000
 spring.mail.username=your-gmail@gmail.com
 spring.mail.password=your-app-password
+gemini.api.key=${GEMINI_API_KEY}
+gemini.api.url=https://generativelanguage.googleapis.com/v1beta
+gemini.model=gemini-2.5-flash
 ```
 
 Run:
 
 ```bash
+export GEMINI_API_KEY=your-gemini-api-key
 mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
 
@@ -123,16 +133,25 @@ Visit `http://localhost:5173`
 
 ## 📡 API Endpoints
 
+### Auth & Users
 | Method | Endpoint | Description |
 |---|---|---|
 | POST | `/api/auth/register` | Register new user |
 | POST | `/api/auth/login` | Login + get JWT |
 | GET | `/api/auth/users` | List all users (admin) |
+
+### Departments & Doctors
+| Method | Endpoint | Description |
+|---|---|---|
 | GET | `/api/departments` | List all departments |
 | POST | `/api/departments` | Create department |
 | GET | `/api/doctors` | List all doctors |
 | POST | `/api/doctors` | Create doctor profile |
 | GET | `/api/doctors/department/{id}` | Doctors by department |
+
+### Slots & Appointments
+| Method | Endpoint | Description |
+|---|---|---|
 | GET | `/api/slots/available` | Available time slots |
 | POST | `/api/slots` | Create time slot |
 | POST | `/api/appointments` | Book appointment |
@@ -141,6 +160,39 @@ Visit `http://localhost:5173`
 | GET | `/api/appointments/all` | All appointments (admin) |
 | PATCH | `/api/appointments/{id}/cancel` | Cancel appointment |
 | PATCH | `/api/appointments/{id}/status` | Update status |
+
+### AI Features
+| Method | Endpoint | Role | Description |
+|---|---|---|---|
+| POST | `/api/ai/chat` | PATIENT | Multi-turn health assistant chat |
+| POST | `/api/ai/summary/{appointmentId}` | DOCTOR | Generate clinical appointment summary |
+
+---
+
+## 🤖 AI Features
+
+### Patient Health Assistant
+Patients can chat with a Gemini-powered AI assistant directly from their dashboard. The assistant:
+- Answers general health questions
+- Explains medical terms
+- Helps patients prepare for appointments
+- Advises on which type of doctor to see
+- Always recommends seeing a doctor for diagnosis — never diagnoses conditions
+
+The full conversation history is sent on each request so the assistant maintains context across the conversation.
+
+### Doctor Appointment Summary
+Doctors can generate a structured clinical summary for any appointment with one click. The summary includes:
+- Patient and doctor details
+- Chief complaint
+- Clinical notes
+- Assessment
+- Recommended follow-up
+
+Summaries are saved to the database and can be regenerated at any time.
+
+### Gemini Integration
+Both features use `GeminiApiClient` which calls the Gemini REST API directly via `RestTemplate`. The system prompt is passed via the `systemInstruction` field (not injected into conversation history) to ensure correct role alternation across multi-turn conversations.
 
 ---
 
@@ -161,7 +213,7 @@ time_slots
 
 appointments
   id, patient_id → users, doctor_id → doctors, slot_id → time_slots,
-  status, notes, created_at
+  status, notes, ai_summary, created_at
 ```
 
 ---
@@ -184,8 +236,14 @@ This project uses **GitHub Actions** for continuous integration:
 
 | Variable | Description |
 |---|---|
+| `DATABASE_URL` | PostgreSQL connection URL |
+| `DB_USERNAME` | Database username |
+| `DB_PASSWORD` | Database password |
+| `JWT_SECRET` | Secret key for JWT signing |
+| `JWT_EXPIRATION` | Token expiry in ms (e.g. 86400000) |
 | `MAIL_USERNAME` | Gmail address for sending emails |
-| `MAIL_PASSWORD` | Gmail App Password (not your account password) |
+| `MAIL_PASSWORD` | Gmail App Password |
+| `GEMINI_API_KEY` | Google Gemini API key |
 
 ---
 
@@ -197,48 +255,6 @@ Automated emails are sent asynchronously (non-blocking) for:
 - Appointment status updates (confirmed, completed)
 
 > Email uses Gmail App Passwords. Regenerate at myaccount.google.com → Security → App passwords if emails stop arriving.
-
----
-
-## 🤖 Roadmap — AI-Powered Pre-Screening
-
-The next major feature is integrating an LLM API for **AI-powered medical pre-screening with structured JSON responses and automatic department routing**.
-
-Instead of: *"Built a clinic booking system"*
-
-The goal: *"Integrated LLM API for AI-powered medical pre-screening with structured JSON responses and department routing"*
-
-### Planned Flow
-
-```
-Patient describes symptoms in plain text
-              ↓
-    POST /api/ai/prescreening
-              ↓
-    LLM API call (Claude / GPT-4)
-    with structured output schema
-              ↓
-    JSON response:
-    {
-      "suggestedDepartment": "Cardiology",
-      "urgency": "HIGH",
-      "summary": "Chest pain with shortness of breath",
-      "disclaimer": "This is not a medical diagnosis.",
-      "suggestedQuestions": [...]
-    }
-              ↓
-    Auto-route patient to correct department
-    in the booking flow
-```
-
-### Other Planned Features
-
-- Doctor ratings and reviews after completed appointments
-- SMS notifications via Twilio alongside email
-- Appointment rescheduling (not just cancel + rebook)
-- Admin analytics dashboard with charts (appointments per day, per department)
-- Patient medical history and notes per appointment
-- Mobile app (React Native)
 
 ---
 
@@ -257,7 +273,18 @@ Patient describes symptoms in plain text
 | 9 | Admin dashboard + doctor profile assignment |
 | 10 | Async email notifications |
 | 11 | CI/CD + Vercel + Railway deployment |
-| Next | LLM pre-screening integration |
+| 12 | AI Health Assistant (Patient) + Appointment Summary (Doctor) via Google Gemini |
+
+---
+
+## 🔮 Roadmap
+
+- Doctor ratings and reviews after completed appointments
+- SMS notifications via Twilio alongside email
+- Appointment rescheduling (not just cancel + rebook)
+- Admin analytics dashboard with charts (appointments per day, per department)
+- Patient medical history and notes per appointment
+- Mobile app (React Native)
 
 ---
 
