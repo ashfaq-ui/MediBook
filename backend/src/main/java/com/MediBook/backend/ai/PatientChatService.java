@@ -9,10 +9,10 @@ import java.util.Map;
 @Service
 public class PatientChatService {
 
-    private final ClaudeApiClient claudeApiClient;
+    private final GeminiApiClient geminiApiClient;
 
-    public PatientChatService(ClaudeApiClient claudeApiClient) {
-        this.claudeApiClient = claudeApiClient;
+    public PatientChatService(GeminiApiClient geminiApiClient) {
+        this.geminiApiClient = geminiApiClient;
     }
 
     private static final String SYSTEM_PROMPT = """
@@ -30,6 +30,6 @@ public class PatientChatService {
             """;
 
     public String chat(ChatRequest request) {
-        return claudeApiClient.chat(SYSTEM_PROMPT, request.getMessages());
+        return geminiApiClient.chat(SYSTEM_PROMPT, request.getMessages());
     }
 }

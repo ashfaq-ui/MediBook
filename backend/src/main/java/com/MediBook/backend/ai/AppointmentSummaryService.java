@@ -10,12 +10,12 @@ import java.util.Map;
 @Service
 public class AppointmentSummaryService {
 
-    private final ClaudeApiClient claudeApiClient;
+    private final GeminiApiClient geminiApiClient;
     private final AppointmentRepository appointmentRepository;
 
-    public AppointmentSummaryService(ClaudeApiClient claudeApiClient,
+    public AppointmentSummaryService(GeminiApiClient geminiApiClient,
                                      AppointmentRepository appointmentRepository) {
-        this.claudeApiClient = claudeApiClient;
+        this.geminiApiClient = geminiApiClient;
         this.appointmentRepository = appointmentRepository;
     }
 
@@ -67,7 +67,7 @@ public class AppointmentSummaryService {
             Map.of("role", "user", "content", userMessage)
         );
 
-        String summary = claudeApiClient.chat(SYSTEM_PROMPT, messages);
+        String summary = geminiApiClient.chat(SYSTEM_PROMPT, messages);
 
         appointment.setAiSummary(summary);
         appointmentRepository.save(appointment);
