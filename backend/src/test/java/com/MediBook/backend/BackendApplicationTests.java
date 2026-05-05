@@ -18,9 +18,9 @@ import org.springframework.test.context.TestPropertySource;
         "spring.mail.username=test@test.com",
         "spring.mail.password=test",
         "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration",
-        "anthropic.api.key=test-key-not-real",
-        "anthropic.api.url=https://api.anthropic.com/v1/messages",
-        "anthropic.model=claude-sonnet-4-20250514"
+        "gemini.api.key=test-key-not-real",
+        "gemini.api.url=https://generativelanguage.googleapis.com/v1beta",
+        "gemini.model=gemini-1.5-flash"
 })
 class BackendApplicationTests {
 
