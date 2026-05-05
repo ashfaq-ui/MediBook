@@ -20,7 +20,7 @@ import org.springframework.test.context.TestPropertySource;
         "spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration",
         "gemini.api.key=test-key-not-real",
         "gemini.api.url=https://generativelanguage.googleapis.com/v1beta",
-        "gemini.model=gemini-1.5-flash"
+        "gemini.model=gemini-2.5-flash"
 })
 class BackendApplicationTests {
 
