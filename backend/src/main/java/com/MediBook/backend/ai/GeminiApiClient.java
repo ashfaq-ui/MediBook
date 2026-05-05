@@ -25,20 +25,10 @@ public class GeminiApiClient {
 
     public String chat(String systemPrompt, List<Map<String, String>> messages) {
         try {
+            // Map conversation history — assistant role becomes "model" for Gemini
             List<Map<String, Object>> contents = new ArrayList<>();
-
-            // Gemini has no system role — prepend as a user/model exchange
-            contents.add(Map.of(
-                "role", "user",
-                "parts", List.of(Map.of("text", systemPrompt))
-            ));
-            contents.add(Map.of(
-                "role", "model",
-                "parts", List.of(Map.of("text", "Understood. I will follow these instructions."))
-            ));
-
             for (Map<String, String> msg : messages) {
-                String role = msg.get("role").equals("assistant") ? "model" : "user";
+                String role = "assistant".equals(msg.get("role")) ? "model" : "user";
                 contents.add(Map.of(
                     "role", role,
                     "parts", List.of(Map.of("text", msg.get("content")))
@@ -47,6 +37,10 @@ public class GeminiApiClient {
 
             Map<String, Object> requestBody = new HashMap<>();
             requestBody.put("contents", contents);
+            // System prompt via systemInstruction — avoids role alternation issues
+            requestBody.put("systemInstruction", Map.of(
+                "parts", List.of(Map.of("text", systemPrompt))
+            ));
             requestBody.put("generationConfig", Map.of("maxOutputTokens", 1024));
 
             String url = apiUrl + "/models/" + model + ":generateContent?key=" + apiKey;
