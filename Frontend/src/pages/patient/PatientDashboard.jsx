@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import BookAppointment from './BookAppointment';
+import PatientChat from '../../components/PatientChat';
 
 function PatientDashboard() {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ function PatientDashboard() {
     const [appointments, setAppointments] = useState([]);
     const [showBooking, setShowBooking] = useState(false);
     const [activeTab, setActiveTab] = useState('all');
+    const [mainTab, setMainTab] = useState('appointments');
 
     useEffect(() => {
         fetchAppointments();
@@ -348,6 +350,26 @@ function PatientDashboard() {
                         </div>
                     </div>
 
+                    {/* Main Tabs */}
+                    <div className="pd-tabs" style={{ marginBottom: '20px' }}>
+                        <button
+                            className={`pd-tab ${mainTab === 'appointments' ? 'active' : ''}`}
+                            onClick={() => setMainTab('appointments')}>
+                            📅 Appointments
+                        </button>
+                        <button
+                            className={`pd-tab ${mainTab === 'chat' ? 'active' : ''}`}
+                            onClick={() => setMainTab('chat')}>
+                            🤖 AI Assistant
+                        </button>
+                    </div>
+
+                    {/* AI Chat */}
+                    {mainTab === 'chat' && <PatientChat />}
+
+                    {/* Appointments Section */}
+                    {mainTab === 'appointments' && <>
+
                     {/* Book Button */}
                     <button
                         className="pd-book-btn"
@@ -432,6 +454,7 @@ function PatientDashboard() {
                             </table>
                         )}
                     </div>
+                    </>}
                 </div>
             </div>
         </>

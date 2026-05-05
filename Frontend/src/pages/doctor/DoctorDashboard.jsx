@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import ManageSlots from './ManageSlots';
+import AppointmentSummary from '../../components/AppointmentSummary';
 
 function DoctorDashboard() {
     const navigate = useNavigate();
@@ -9,6 +10,7 @@ function DoctorDashboard() {
     const [doctorId, setDoctorId] = useState(null);
     const [appointments, setAppointments] = useState([]);
     const [tab, setTab] = useState('appointments');
+    const [expandedSummaryId, setExpandedSummaryId] = useState(null);
 
     useEffect(() => {
         fetchDoctorId();
@@ -345,11 +347,13 @@ function DoctorDashboard() {
                                             <th>Time</th>
                                             <th>Status</th>
                                             <th>Actions</th>
+                                            <th>AI Summary</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {appointments.map(a => (
-                                            <tr key={a.id}>
+                                            <React.Fragment key={a.id}>
+                                            <tr>
                                                 <td>
                                                     <div style={{ fontWeight: 600, color: '#F1F5F9' }}>{a.patientName}</div>
                                                 </td>
@@ -382,7 +386,23 @@ function DoctorDashboard() {
                                                         )}
                                                     </div>
                                                 </td>
+                                                <td>
+                                                    <button
+                                                        className="dd-action-btn"
+                                                        style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.25)' }}
+                                                        onClick={() => setExpandedSummaryId(expandedSummaryId === a.id ? null : a.id)}>
+                                                        {expandedSummaryId === a.id ? '✕ Close' : '✨ Summary'}
+                                                    </button>
+                                                </td>
                                             </tr>
+                                            {expandedSummaryId === a.id && (
+                                                <tr>
+                                                    <td colSpan={6} style={{ padding: '0 16px 16px' }}>
+                                                        <AppointmentSummary appointmentId={a.id} />
+                                                    </td>
+                                                </tr>
+                                            )}
+                                            </React.Fragment>
                                         ))}
                                     </tbody>
                                 </table>
