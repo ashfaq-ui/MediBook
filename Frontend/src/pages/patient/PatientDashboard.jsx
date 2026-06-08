@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@asgardeo/auth-react';
 import api from '../../api/axios';
 import BookAppointment from './BookAppointment';
 import PatientChat from '../../components/PatientChat';
 
 function PatientDashboard() {
+    const { signOut } = useAuthContext();
     const navigate = useNavigate();
     const name = localStorage.getItem('name');
     const patientId = localStorage.getItem('userId');
@@ -38,7 +40,7 @@ function PatientDashboard() {
 
     const handleLogout = () => {
         localStorage.clear();
-        navigate('/login');
+        signOut();
     };
 
     const upcoming = appointments.filter(a => a.status === 'PENDING' || a.status === 'CONFIRMED');

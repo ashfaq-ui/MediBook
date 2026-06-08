@@ -19,8 +19,15 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
+                        .requestMatchers("/api/auth/me").authenticated()
+                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> {})
                 );
         return http.build();
     }

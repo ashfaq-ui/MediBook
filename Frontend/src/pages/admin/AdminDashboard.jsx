@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@asgardeo/auth-react';
 import api from '../../api/axios';
 
 function AdminDashboard() {
+    const { signOut } = useAuthContext();
     const navigate = useNavigate();
     const name = localStorage.getItem('name');
     const [tab, setTab] = useState('users');
@@ -72,7 +74,7 @@ function AdminDashboard() {
 
     const handleLogout = () => {
         localStorage.clear();
-        navigate('/login');
+        signOut();
     };
 
     const patients = users.filter(u => u.role === 'PATIENT');

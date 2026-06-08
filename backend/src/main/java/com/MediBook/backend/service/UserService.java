@@ -44,6 +44,18 @@ public class UserService {
         return new AuthResponse(token, user.getRole().name(), user.getName(), user.getId(), user.getEmail());
     }
 
+    public User getOrCreateUser(String email, String name) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setEmail(email);
+                    newUser.setName(name != null ? name : email.split("@")[0]);
+                    newUser.setPassword("");
+                    newUser.setRole(Role.PATIENT);
+                    return userRepository.save(newUser);
+                });
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }

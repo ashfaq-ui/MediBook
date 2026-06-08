@@ -1,33 +1,51 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from '@asgardeo/auth-react';
 import api from '../api/axios';
 
 function Login() {
+    const { state, signIn, getAccessToken } = useAuthContext();
     const navigate = useNavigate();
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    useEffect(() => {
+        if (state.isAuthenticated) {
+            setLoading(true);
+            const syncUser = async () => {
+                try {
+                    const token = await getAccessToken();
+                    localStorage.setItem('token', token);
+
+                    const res = await api.get('/auth/me');
+                    localStorage.setItem('role', res.data.role);
+                    localStorage.setItem('name', res.data.name);
+                    localStorage.setItem('userId', res.data.id);
+                    localStorage.setItem('email', res.data.email);
+
+                    const role = res.data.role;
+                    if (role === 'PATIENT') navigate('/patient/dashboard');
+                    else if (role === 'DOCTOR') navigate('/doctor/dashboard');
+                    else if (role === 'ADMIN') navigate('/admin/dashboard');
+                } catch (err) {
+                    console.error('Failed to sync user with backend', err);
+                    setError('Authentication succeeded, but failed to sync user with clinical backend.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+            syncUser();
+        }
+    }, [state.isAuthenticated, getAccessToken, navigate]);
+
+    const handleLogin = async () => {
         setLoading(true);
         setError('');
         try {
-            const response = await api.post('/auth/login', { email, password });
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('role', response.data.role);
-            localStorage.setItem('name', response.data.name);
-            localStorage.setItem('userId', response.data.userId);
-            localStorage.setItem('email', response.data.email);
-
-            const role = response.data.role;
-            if (role === 'PATIENT') navigate('/patient/dashboard');
-            else if (role === 'DOCTOR') navigate('/doctor/dashboard');
-            else if (role === 'ADMIN') navigate('/admin/dashboard');
+            await signIn();
         } catch (err) {
-            setError('Invalid email or password. Please try again.');
-        } finally {
+            console.error('Asgardeo sign in error', err);
+            setError('Failed to initiate login with Asgardeo.');
             setLoading(false);
         }
     };
@@ -92,36 +110,6 @@ function Login() {
                     font-size: 14px;
                 }
 
-                .form-group {
-                    margin-bottom: 16px;
-                }
-
-                .form-group label {
-                    display: block;
-                    margin-bottom: 6px;
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #CBD5E1;
-                }
-
-                .form-input {
-                    width: 100%;
-                    padding: 12px 16px;
-                    border-radius: 8px;
-                    border: 1.5px solid #334155;
-                    background: #0F172A;
-                    color: #F1F5F9;
-                    font-size: 14px;
-                    outline: none;
-                    transition: border-color 0.2s;
-                }
-
-                .form-input::placeholder { color: #475569; }
-
-                .form-input:focus {
-                    border-color: #0D9488;
-                }
-
                 .submit-btn {
                     width: 100%;
                     padding: 13px;
@@ -139,34 +127,11 @@ function Login() {
                 .submit-btn:hover { background: #0F766E; }
                 .submit-btn:disabled { background: #334155; color: #64748B; cursor: not-allowed; }
 
-                .divider {
-                    display: flex;
-                    align-items: center;
-                    margin: 24px 0;
-                    gap: 12px;
-                }
-
-                .divider-line {
-                    flex: 1;
-                    height: 1px;
-                    background: #334155;
-                }
-
-                .divider span {
-                    color: #475569;
-                    font-size: 13px;
-                }
-
                 .bottom-text {
                     text-align: center;
                     font-size: 14px;
                     color: #64748B;
-                }
-
-                .bottom-text a {
-                    color: #2DD4BF;
-                    font-weight: 600;
-                    text-decoration: none;
+                    margin-top: 24px;
                 }
 
                 @media (max-width: 480px) {
@@ -191,45 +156,16 @@ function Login() {
 
                     {error && <div className="error-box">⚠️ {error}</div>}
 
-                    <form onSubmit={handleLogin}>
-                        <div className="form-group">
-                            <label>Email Address</label>
-                            <input
-                                className="form-input"
-                                type="email"
-                                placeholder="you@example.com"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="form-group" style={{ marginBottom: '24px' }}>
-                            <label>Password</label>
-                            <input
-                                className="form-input"
-                                type="password"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <button className="submit-btn" type="submit" disabled={loading}>
-                            {loading ? 'Signing in...' : 'Sign In'}
-                        </button>
-                    </form>
-
-                    <div className="divider">
-                        <div className="divider-line" />
-                        <span>or</span>
-                        <div className="divider-line" />
-                    </div>
+                    <button 
+                        className="submit-btn" 
+                        onClick={handleLogin} 
+                        disabled={loading || state.isLoading}
+                    >
+                        {loading || state.isLoading ? 'Signing in...' : 'Sign In with Asgardeo'}
+                    </button>
 
                     <p className="bottom-text">
-                        Don't have an account?{' '}
-                        <Link to="/register">Create one</Link>
+                        Protected by WSO2 Asgardeo Identity Platform
                     </p>
                 </div>
             </div>
