@@ -11,13 +11,13 @@ import java.util.*;
 @Component
 public class GeminiApiClient {
 
-    @Value("${gemini.api.key}")
+    @Value("${gemini.api.key:}")
     private String apiKey;
 
-    @Value("${gemini.api.url}")
+    @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta}")
     private String apiUrl;
 
-    @Value("${gemini.model}")
+    @Value("${gemini.model:gemini-2.5-flash}")
     private String model;
 
     private final RestTemplate restTemplate = new RestTemplate();
