@@ -1,300 +1,117 @@
-# 🏥 MediBook — Clinic Appointment System
+# MediBook
 
-A full-stack clinic management system built with React and Spring Boot, featuring role-based dashboards, appointment booking, email notifications, and AI-powered features via Google Gemini.
+A fresh foundation for rebuilding the clinic appointment system component by
+component: Next.js 16 and React 19, Spring Boot 4 with Java 17, and PostgreSQL 17
+in Docker.
 
-![Java](https://img.shields.io/badge/Java-17-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-green)
-![React](https://img.shields.io/badge/React-19-blue)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue)
-![CI](https://github.com/ashfaq-ui/MediBook/actions/workflows/backend.yml/badge.svg)
-![CI](https://github.com/ashfaq-ui/MediBook/actions/workflows/frontend.yml/badge.svg)
+## Current state
 
-**Live Demo:** [medi-book-flax.vercel.app](https://medi-book-flax.vercel.app)
+The frontend contains the home, login, registration, patient, doctor, and admin
+pages, with basic content, navigation, forms, and empty data areas. These are
+browsable previews; submissions and account actions are disabled while features
+are rebuilt. See [Frontend/README.md](Frontend/README.md) for the page routes.
+The backend contains application configuration, database connectivity, CORS
+configuration, and `GET /api/health`.
+The previous login, dashboards, booking, email, and AI implementations have been
+removed from the active application and archived locally before the reset.
+These features will be rebuilt incrementally.
 
----
+The existing PostgreSQL database and `medibook_pgdata` Docker volume are retained.
+Automatic Hibernate schema changes and SQL initialization are disabled. The
+foundation does not create, update, or delete application records or tables.
 
-## 📋 Features
+## Run locally
 
-### 🧑‍⚕️ Patient
-- Register and login securely with JWT
-- Book appointments by selecting department, doctor, date and time slot
-- View upcoming, completed and cancelled appointments
-- Cancel appointments
-- Receive email confirmations for bookings and cancellations
-- **AI Health Assistant** — chat with a Gemini-powered assistant for general health questions, symptom guidance, and appointment preparation
+Requirements: Docker Desktop, Java 17, and Node.js 20.9 or newer. Use Maven or
+the included `backend/mvnw` wrapper.
 
-### 👨‍⚕️ Doctor
-- View all appointments with patient details
-- Confirm and complete appointments
-- Manage available time slots by date
-- Receive email notifications on status updates
-- **AI Appointment Summary** — generate a structured clinical summary for any appointment with one click
+From the project root, start PostgreSQL:
 
-### 🛡️ Admin
-- View all users, doctors, departments and appointments
-- Add new departments
-- Assign doctor profiles to registered DOCTOR-role users
-- Monitor system activity via dashboard stats
-
----
-
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Frontend | React 19 + Vite + React Router v7 |
-| Backend | Spring Boot 3 + Spring Security |
-| Database | PostgreSQL 17 |
-| Auth | JWT (JSON Web Tokens) |
-| Email | Spring Mail + Gmail SMTP (async) |
-| AI | Google Gemini API (gemini-2.5-flash) |
-| Build | Maven |
-| CI/CD | GitHub Actions |
-| Deployment | Vercel (frontend) · Railway (backend + DB) |
-
----
-
-## 🏗 Architecture
-
-```
-React Frontend (Vite) — Vercel
-        ↓  HTTPS + JWT
-Spring Boot REST API — Railway
-        ↓                    ↓
-  PostgreSQL DB         Google Gemini API
-     Railway
+```bash
+docker compose up -d
 ```
 
-### Backend Layer Structure
-
-```
-controller/   ← REST endpoints
-service/      ← Business logic (email is async via @Async)
-repository/   ← JPA database queries
-model/        ← JPA entity classes
-dto/          ← Request/Response objects
-security/     ← JWT filter + CORS config
-enums/        ← Role, AppointmentStatus
-ai/           ← Gemini API client, chat service, summary service
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Java 17
-- Node.js 20+
-- PostgreSQL 17
-- Maven
-- Google Gemini API key (free at [aistudio.google.com](https://aistudio.google.com))
-
-### Backend Setup
+In a backend terminal:
 
 ```bash
 cd backend
+mvn spring-boot:run
 ```
 
-Create `src/main/resources/application-local.properties` (gitignored):
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/medibook
-spring.datasource.username=postgres
-spring.datasource.password=yourpassword
-jwt.secret=your-secret-key
-jwt.expiration=86400000
-spring.mail.username=your-gmail@gmail.com
-spring.mail.password=your-app-password
-gemini.api.key=${GEMINI_API_KEY}
-gemini.api.url=https://generativelanguage.googleapis.com/v1beta
-gemini.model=gemini-2.5-flash
-```
-
-Run:
-
-```bash
-export GEMINI_API_KEY=your-gemini-api-key
-mvn spring-boot:run -Dspring-boot.run.profiles=local
-```
-
-### Frontend Setup
+In a frontend terminal:
 
 ```bash
 cd Frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Visit `http://localhost:5173`
+Frontend: http://localhost:3000
 
-> `.env.development` points to the hosted Railway backend by default. To use a local backend, uncomment the localhost line in that file.
+Backend health: http://localhost:8080/api/health
 
----
+Database: `localhost:5433`, database `medibook`, username `postgres`, password
+`medibookpassword` for the current local setup. Existing volume credentials are
+retained when restarting the container.
 
-## 📡 API Endpoints
+Stop the application servers with Ctrl+C. Stop PostgreSQL from the project root
+with `docker compose stop db`; its named volume retains the data.
 
-### Auth & Users
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Register new user |
-| POST | `/api/auth/login` | Login + get JWT |
-| GET | `/api/auth/users` | List all users (admin) |
+## Configuration
 
-### Departments & Doctors
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/departments` | List all departments |
-| POST | `/api/departments` | Create department |
-| GET | `/api/doctors` | List all doctors |
-| POST | `/api/doctors` | Create doctor profile |
-| GET | `/api/doctors/department/{id}` | Doctors by department |
+The backend reads `DATABASE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `PORT`, and
+`CORS_ALLOWED_ORIGINS` from the process environment; defaults work with the
+included Compose configuration. `backend/.env.example` lists the supported
+values. Spring Boot does not automatically load a `.env` file.
 
-### Slots & Appointments
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/slots/available` | Available time slots |
-| POST | `/api/slots` | Create time slot |
-| POST | `/api/appointments` | Book appointment |
-| GET | `/api/appointments/patient/{id}` | Patient appointments |
-| GET | `/api/appointments/doctor/{id}` | Doctor appointments |
-| GET | `/api/appointments/all` | All appointments (admin) |
-| PATCH | `/api/appointments/{id}/cancel` | Cancel appointment |
-| PATCH | `/api/appointments/{id}/status` | Update status |
+The frontend's `.env.development` contains the local API URL. For overrides,
+copy `Frontend/.env.example` to `Frontend/.env.local`. Public Next.js environment
+variables are embedded when the application builds. Configure the production API
+URL explicitly when deploying.
 
-### AI Features
-| Method | Endpoint | Role | Description |
-|---|---|---|---|
-| POST | `/api/ai/chat` | PATIENT | Multi-turn health assistant chat |
-| POST | `/api/ai/summary/{appointmentId}` | DOCTOR | Generate clinical appointment summary |
+## Project layout
 
----
+- `Frontend/src/app`: Next.js routes, root layout, and base styles.
+- `Frontend/src/components`: shared UI components as they are built.
+- `Frontend/src/features`: feature components as they are built.
+- `Frontend/src/lib`: shared frontend utilities as they are needed.
+- `backend/src/main/java/com/medibook/config`: application configuration.
+- `backend/src/main/java/com/medibook/health`: API and database health.
+- `compose.yaml`: the existing PostgreSQL service and persistent data volume.
 
-## 🤖 AI Features
+## Verification
 
-### Patient Health Assistant
-Patients can chat with a Gemini-powered AI assistant directly from their dashboard. The assistant:
-- Answers general health questions
-- Explains medical terms
-- Helps patients prepare for appointments
-- Advises on which type of doctor to see
-- Always recommends seeing a doctor for diagnosis — never diagnoses conditions
-
-The full conversation history is sent on each request so the assistant maintains context across the conversation.
-
-### Doctor Appointment Summary
-Doctors can generate a structured clinical summary for any appointment with one click. The summary includes:
-- Patient and doctor details
-- Chief complaint
-- Clinical notes
-- Assessment
-- Recommended follow-up
-
-Summaries are saved to the database and can be regenerated at any time.
-
-### Gemini Integration
-Both features use `GeminiApiClient` which calls the Gemini REST API directly via `RestTemplate`. The system prompt is passed via the `systemInstruction` field (not injected into conversation history) to ensure correct role alternation across multi-turn conversations.
-
----
-
-## 🗄 Database Schema
-
-```
-users
-  id, name, email, password, role
-
-departments
-  id, name, description
-
-doctors
-  id, user_id → users, department_id → departments, specialization, phone
-
-time_slots
-  id, doctor_id → doctors, date, start_time, end_time, is_booked
-
-appointments
-  id, patient_id → users, doctor_id → doctors, slot_id → time_slots,
-  status, notes, ai_summary, created_at
+```bash
+cd Frontend
+npm run lint
+npm run build
 ```
 
----
+In the backend directory:
 
-## 🔄 CI/CD
+```bash
+./mvnw clean verify
+```
 
-This project uses **GitHub Actions** for continuous integration:
+Backend tests use an isolated in-memory database and do not require PostgreSQL.
+They check health responses, development CORS, and startup without schema writes.
 
-- **Backend CI** — triggered on changes to `backend/`, runs Maven build and tests
-- **Frontend CI** — triggered on changes to `Frontend/`, runs npm install and Vite build
+## Rebuild order
 
-### Deployment
+1. Page structure and navigation (created); refine the UI component by component.
+2. Registration, login, and role handling.
+3. Departments and doctor profiles.
+4. Doctor availability and time slots.
+5. Appointment booking and management.
+6. Patient, doctor, and admin dashboards.
+7. Email notifications and optional AI features.
 
-| Service | Platform | Trigger |
-|---|---|---|
-| Frontend | Vercel | Auto-deploy on push to `main` |
-| Backend + DB | Railway | Auto-deploy on push to `main` |
+Each component can be designed, implemented, and reviewed before moving on.
+Existing database tables will be mapped deliberately as their features return.
 
-**Railway environment variables required:**
+## Local backups
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | PostgreSQL connection URL |
-| `DB_USERNAME` | Database username |
-| `DB_PASSWORD` | Database password |
-| `JWT_SECRET` | Secret key for JWT signing |
-| `JWT_EXPIRATION` | Token expiry in ms (e.g. 86400000) |
-| `MAIL_USERNAME` | Gmail address for sending emails |
-| `MAIL_PASSWORD` | Gmail App Password |
-| `GEMINI_API_KEY` | Google Gemini API key |
-
----
-
-## 📧 Email Notifications
-
-Automated emails are sent asynchronously (non-blocking) for:
-- Appointment booking confirmation
-- Appointment cancellation
-- Appointment status updates (confirmed, completed)
-
-> Email uses Gmail App Passwords. Regenerate at myaccount.google.com → Security → App passwords if emails stop arriving.
-
----
-
-## 🗓 Project Timeline
-
-| Phase | Feature |
-|---|---|
-| 1 | Spring Boot setup + PostgreSQL connection |
-| 2 | User auth + JWT |
-| 3 | React frontend + Login/Register |
-| 4 | Patient & Doctor dashboards |
-| 5 | Department & Doctor management |
-| 6 | Time slot management |
-| 7 | Appointment booking API |
-| 8 | Connect frontend to backend |
-| 9 | Admin dashboard + doctor profile assignment |
-| 10 | Async email notifications |
-| 11 | CI/CD + Vercel + Railway deployment |
-| 12 | AI Health Assistant (Patient) + Appointment Summary (Doctor) via Google Gemini |
-
----
-
-## 🔮 Roadmap
-
-- Doctor ratings and reviews after completed appointments
-- SMS notifications via Twilio alongside email
-- Appointment rescheduling (not just cancel + rebook)
-- Admin analytics dashboard with charts (appointments per day, per department)
-- Patient medical history and notes per appointment
-- Mobile app (React Native)
-
----
-
-## 👨‍💻 Author
-
-**Mohamed Ashfaq**
-- GitHub: [@ashfaq-ui](https://github.com/ashfaq-ui)
-
----
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
+`.rebuild-backups/` is ignored by Git. The timestamped snapshot made before this
+reset contains `source-before-rebuild.tar.gz`, `medibook.dump`, and a checksum
+manifest. `.rebuild-backups/latest` identifies the snapshot directory. Keep these
+local backups when reviewing or continuing the rebuild.

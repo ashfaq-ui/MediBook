@@ -15,3 +15,6 @@ application-local.properties
 target/
 node_modules/
 dist/
+
+# Private source and database snapshots made before rebuilding
+.rebuild-backups/
