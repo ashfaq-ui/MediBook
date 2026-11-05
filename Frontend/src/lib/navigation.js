@@ -9,7 +9,7 @@ export const navigation = {
         { href: '/patient/dashboard', label: 'Dashboard', description: 'An overview of your care.' },
         { href: '/patient/appointments', label: 'My appointments', description: 'View and manage your appointments.' },
         { href: '/patient/book-appointment', label: 'Book an appointment', description: 'Choose a doctor and an available time.' },
-        { href: '/patient/health-assistant', label: 'Health assistant', description: 'Ask general health questions.' },
+        { href: '/patient/health-assistant', label: 'Health assistant', description: 'Help with bookings and appointments.' },
     ],
     doctor: [
         { href: '/doctor/dashboard', label: 'Dashboard', description: 'An overview of your practice.' },

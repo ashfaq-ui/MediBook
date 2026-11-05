@@ -1,7 +1,2 @@
-import DashboardOverview from '../../../components/DashboardOverview';
-
-export const metadata = { title: 'Doctor dashboard' };
-
-export default function Page() {
-    return <DashboardOverview role="doctor" />;
-}
+import Dashboard from '../../../features/Dashboard';
+export default function Page() { return <Dashboard role="doctor" />; }

@@ -12,7 +12,7 @@ export default function FormField({ label, name, type = 'text', options = [], pl
             <span className={`field-control${icon ? ' has-icon' : ''}${type === 'password' ? ' password-control' : ''}`}>
                 {icon && <Icon className="input-icon" name={icon} size={18} />}
                 {type === 'select' ? (
-                    <><select name={name} defaultValue="" {...props}>
+                    <><select name={name} defaultValue={props.value === undefined ? '' : undefined} {...props}>
                         <option value="" disabled>{placeholder || 'Choose an option'}</option>
                         {options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                     </select><Icon className="select-chevron" name="chevron" size={16} /></>

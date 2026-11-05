@@ -22,7 +22,7 @@ export default function AuthLayout({ title, description, children }) {
                     <span className="eyebrow">YOUR CARE STARTS HERE</span>
                     <PageHeader title={title} description={description} />
                     {children}
-                    <p className="auth-preview"><Icon name="info" size={15} /> You’re viewing a preview. Account actions open soon.</p>
+                    <p className="auth-preview"><Icon name="info" size={15} /> Your account keeps your appointments in one place.</p>
                 </div>
             </section>
         </main>

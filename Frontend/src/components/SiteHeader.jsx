@@ -28,7 +28,7 @@ export default function SiteHeader() {
                     </div>
                 </>}
             </header>}
-            {!workspace && !auth && <p className="preview-notice"><Icon name="info" size={14} />You’re exploring a preview. Booking and account actions are coming soon.</p>}
+            {!workspace && !auth && <p className="preview-notice"><Icon name="info" size={14} />Book and manage your clinic appointments with MediBook.</p>}
         </>
     );
 }
